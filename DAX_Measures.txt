@@ -1,0 +1,42 @@
+-- Create these measures after loading the cleaned station table as 'BikeStations'.
+Station Count = DISTINCTCOUNT(BikeStations[StationNumber])
+
+Open Stations =
+CALCULATE([Station Count], BikeStations[Status] = "OPEN")
+
+Closed Stations =
+CALCULATE([Station Count], BikeStations[Status] = "CLOSED")
+
+Total Bike Capacity = SUM(BikeStations[BikeStands])
+
+Available Bikes = SUM(BikeStations[AvailableBikes])
+
+Available Docks = SUM(BikeStations[AvailableBikeStands])
+
+Occupied Docks = SUM(BikeStations[OccupiedStands])
+
+Bike Availability % =
+DIVIDE([Available Bikes], [Total Bike Capacity], 0)
+
+Dock Occupancy % =
+DIVIDE([Occupied Docks], [Total Bike Capacity], 0)
+
+Average Bikes per Station =
+DIVIDE([Available Bikes], [Station Count], 0)
+
+Stations Needing Data Check =
+CALCULATE([Station Count], BikeStations[CapacityCheck] = "Check")
+
+-- Optional calculated columns (create in the BikeStations table)
+Occupied Stands = BikeStations[BikeStands] - BikeStations[AvailableBikeStands]
+
+Capacity Check =
+IF(
+    BikeStations[BikeStands] = BikeStations[AvailableBikeStands] + BikeStations[AvailableBikes],
+    "Balanced",
+    "Check"
+)
+
+-- IMPORTANT: this supplied dataset contains station snapshots, not trip/revenue/distance history.
+-- Do not create Revenue per km or revenue-over-time measures unless you obtain a dataset
+-- containing revenue, trips, trip distance and historical snapshots.
